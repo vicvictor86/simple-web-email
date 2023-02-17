@@ -13,14 +13,16 @@ export class CreateUserService {
       return { statusCode: 400, message: 'Missing attributes' };
     }
 
-    const userAlreadyExists = users.find(user => user.id === newUser.id);
+    const typedNewUser = newUser as UserDTO;
+
+    const userAlreadyExists = users.find(user => user.name === typedNewUser.name);
 
     if (userAlreadyExists) {
       return { statusCode: 400, message: 'User already exists' };
     }
 
-    users.push(newUser);
+    users.push(typedNewUser);
 
-    return { statusCode: 201, message: JSON.stringify(newUser)};
+    return { statusCode: 201, message: JSON.stringify(typedNewUser)};
   }
 }
