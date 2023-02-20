@@ -4,9 +4,9 @@ import { MessageController } from '../controller/MessageController';
 const messageController = new MessageController();
 
 export function router(req: IncomingMessage, res: ServerResponse) {
-  if (req.method === 'GET' && (req.url === '/messages' || req.url === '/messages/')) {
+  if (req.method === 'GET') {
     messageController.get(req, res);
-  } else if (req.method === 'POST' && (req.url === '/messages' || req.url === '/messages/')) {
+  } else if (req.method === 'POST') {
     messageController.post(req, res);
   } else if (req.method === 'DELETE') {
     messageController.delete(req, res);

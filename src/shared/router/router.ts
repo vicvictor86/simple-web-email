@@ -8,11 +8,14 @@ export function router(req: IncomingMessage, res: ServerResponse) {
     res.end();
     return;
   }
+
+  const regexUsers = /^\/users\/*\w*/;
+  const regexMessages = /^\/messages\/*\w*/;
   
-  if (req.url.includes('users')) {
+  if (regexUsers.test(req.url)) {
     UseRouter(req, res);
     return;
-  } else if (req.url.includes('messages')) {
+  } else if (regexMessages.test(req.url)) {
     MessageRouter(req, res);
     return;
   } else {

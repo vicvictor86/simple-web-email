@@ -4,4 +4,5 @@ export interface MessageDTO {
   addressee: string;
   text: string;
   subject: string;
+  replyingTo: string;
 }

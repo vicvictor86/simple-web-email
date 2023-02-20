@@ -4,15 +4,11 @@ import { UserController } from '../controller/UserController';
 const userController = new UserController();
 
 export function router(req: IncomingMessage, res: ServerResponse) {
-  if (req.method === 'GET' && req.url === '/users') {
+  if (req.method === 'GET') {
     userController.get(req, res);
-  }
-  
-  else if (req.method === 'POST' && req.url === '/users') {
+  } else if (req.method === 'POST') {
     userController.post(req, res);
-  }
-  
-  else {
+  } else {
     res.statusCode = 404;
     res.end();
   }
