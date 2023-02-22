@@ -1,5 +1,5 @@
 import http from 'http';
-import { MessageDTO } from './modules/messages/dtos/MessagesDTO';
+import { MessageDTO } from './modules/messages/dtos/IMessagesDTO';
 import { UserDTO } from './modules/users/dtos/UserDTO';
 import { router } from './shared/router/router';
 

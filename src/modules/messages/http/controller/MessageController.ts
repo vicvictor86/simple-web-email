@@ -5,6 +5,7 @@ import { Message } from '../../entities/Message';
 import { CreateMessageService } from '../service/CreateMessageService';
 import { DeleteMessageService } from '../service/DeleteMessageService';
 import { ShowMessageService } from '../service/ShowMessageService';
+import { ToForwardService } from '../service/ToForwardService';
 
 export class MessageController {
   get(req: IncomingMessage, res: ServerResponse) {
@@ -20,17 +21,33 @@ export class MessageController {
 
   post(req: IncomingMessage, res: ServerResponse) {
     const createMessageService = new CreateMessageService();
+    const toForwardService = new ToForwardService();
 
     let body = '';
     req.on('data', requestBody => {
       body += requestBody.toString();
     });
 
+    const messageId = req.url?.split('/')[2];
+
     req.on('end', () => {
-      const newMessage = JSON.parse(body);
+      const bodyData = JSON.parse(body);
       const keysNeededInMessage = Object.keys(new Message());
 
-      const { statusCode, message } = createMessageService.execute(newMessage, keysNeededInMessage, messages);
+      let statusCode: number;
+      let message: string;
+
+      if (messageId) {
+        const { senderId, addresseeId } = bodyData;
+        const response = toForwardService.execute({ senderId, addresseeId, messageId });
+        statusCode = response.statusCode;
+        message = response.message;
+      } else {
+        const response = createMessageService.execute({ bodyData, keysNeededInMessage, messages });
+        statusCode = response.statusCode;
+        message = response.message;
+      }
+
 
       res.statusCode = statusCode;
       res.end(message);

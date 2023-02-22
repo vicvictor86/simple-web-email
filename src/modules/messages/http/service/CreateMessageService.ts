@@ -1,6 +1,12 @@
 import { users } from "../../../../server";
 import { hasAllAttributes } from "../../../../utils/checkBodyData";
-import { MessageDTO } from "../../dtos/MessagesDTO";
+import { IMessageDTO } from "../../dtos/IMessageDTO";
+
+interface Request {
+  bodyData: any;
+  keysNeededInMessage: string[];
+  messages: IMessageDTO[];
+}
 
 interface Response {
   statusCode: number;
@@ -8,14 +14,14 @@ interface Response {
 }
 
 export class CreateMessageService {
-  public execute(newMessage: any, keysNeededInMessage: string[], messages: MessageDTO[]): Response {
-    const newMessageWithReplyingTo = newMessage.replyingTo ? newMessage as MessageDTO : { ...newMessage, replyingTo: "" } as MessageDTO;
+  public execute({ bodyData, keysNeededInMessage, messages }: Request): Response {
+    const newMessageWithReplyingTo = bodyData.replyingTo ? bodyData as IMessageDTO : { ...bodyData, replyingTo: "" } as IMessageDTO;
     if (!hasAllAttributes(newMessageWithReplyingTo, keysNeededInMessage)) {
       return { statusCode: 400, message: 'Missing attributes' };
     }
 
-    const sender = users.find(user => user.name === newMessageWithReplyingTo.sender);
-    const addressee = users.find(user => user.name === newMessageWithReplyingTo.addressee);
+    const sender = users.find(user => user.id === newMessageWithReplyingTo.senderId);
+    const addressee = users.find(user => user.id === newMessageWithReplyingTo.addresseeId);
     const messageReplying = messages.find(message => message.id === newMessageWithReplyingTo.replyingTo);
 
     if (!sender) {
@@ -29,9 +35,9 @@ export class CreateMessageService {
     if (newMessageWithReplyingTo.replyingTo && !messageReplying) {
       return { statusCode: 400, message: 'Message replying to not found' };
     }
-    
+
     if (messageReplying) {
-      const senderInConversation = newMessageWithReplyingTo.sender === messageReplying.sender || newMessageWithReplyingTo.sender === messageReplying.addressee;
+      const senderInConversation = newMessageWithReplyingTo.senderId === messageReplying.senderId || newMessageWithReplyingTo.senderId === messageReplying.addresseeId;
 
       if (!senderInConversation) {
         return { statusCode: 400, message: 'Sender not in conversation' };

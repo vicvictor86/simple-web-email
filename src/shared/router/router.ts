@@ -9,7 +9,9 @@ export function router(req: IncomingMessage, res: ServerResponse) {
     return;
   }
 
+  //Match urls that start with /users/ and have or not something after it
   const regexUsers = /^\/users\/*\w*/;
+  //Match urls that start with /messages/ and have or not something after it
   const regexMessages = /^\/messages\/*\w*/;
   
   if (regexUsers.test(req.url)) {
