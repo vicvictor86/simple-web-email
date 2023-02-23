@@ -5,4 +5,5 @@ export class Message {
   text: string = '';
   subject: string = '';
   replyingTo: string = '';
+  forwardingTo: string = '';
 }

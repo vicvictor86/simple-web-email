@@ -1,4 +1,5 @@
 import { messages, users } from "../../../../server";
+import { IMessageDTO } from "../../dtos/IMessageDTO";
 
 interface Request {
   senderId: string;
@@ -37,7 +38,8 @@ export class ToForwardService {
       ...messageToForward,
       senderId: sender.id,
       addresseeId: addressee.id,
-    }
+      forwardingTo: messageToForward.id,
+    } as IMessageDTO;
 
     messages.push(newMessage);
 

@@ -5,4 +5,5 @@ export interface IMessageDTO {
   text: string;
   subject: string;
   replyingTo: string;
+  forwardingTo: string;
 }

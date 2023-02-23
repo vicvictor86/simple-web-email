@@ -1,9 +1,9 @@
 import http from 'http';
-import { MessageDTO } from './modules/messages/dtos/IMessagesDTO';
+import { IMessageDTO } from './modules/messages/dtos/IMessageDTO';
 import { UserDTO } from './modules/users/dtos/UserDTO';
 import { router } from './shared/router/router';
 
-export const messages: MessageDTO[] = [];
+export const messages: IMessageDTO[] = [];
 export const users: UserDTO[] = [];
 
 const server = http.createServer((req, res) => {

@@ -15,7 +15,7 @@ interface Response {
 
 export class CreateMessageService {
   public execute({ bodyData, keysNeededInMessage, messages }: Request): Response {
-    const newMessageWithReplyingTo = bodyData.replyingTo ? bodyData as IMessageDTO : { ...bodyData, replyingTo: "" } as IMessageDTO;
+    const newMessageWithReplyingTo = bodyData.replyingTo ? bodyData as IMessageDTO : { ...bodyData, replyingTo: "", forwardingTo: "" } as IMessageDTO;
     if (!hasAllAttributes(newMessageWithReplyingTo, keysNeededInMessage)) {
       return { statusCode: 400, message: 'Missing attributes' };
     }
