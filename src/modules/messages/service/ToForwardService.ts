@@ -1,4 +1,4 @@
-import { messages, users } from "../../../server";
+import { messages, users } from "../../../shared/infra/http/server";
 import { IMessageDTO } from "../dtos/ICreateMessageDTO";
 
 interface Request {

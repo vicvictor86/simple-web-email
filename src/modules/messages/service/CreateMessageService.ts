@@ -1,5 +1,5 @@
 import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
-import { hasAllAttributes } from "../../../utils/checkBodyData";
+import { hasAllAttributes } from "../../../shared/utils/checkBodyData";
 import { ICreateMessageDTO } from "../dtos/ICreateMessageDTO";
 import { IMessagesRepository } from "../repositories/IMessageRepositories";
 

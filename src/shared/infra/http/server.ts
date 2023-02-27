@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import http from 'http';
-import { router } from './shared/router/router';
-import './shared/container';
+import { router } from './router/router';
+import '../../container';
 
 const server = http.createServer((req, res) => {
   router(req, res);

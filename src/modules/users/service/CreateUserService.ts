@@ -1,7 +1,7 @@
 import { User } from "@modules/users/infra/typeorm/entities/User";
 import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
 import { IncomingMessage, ServerResponse } from "http";
-import { hasAllAttributes } from "../../../utils/checkBodyData";
+import { hasAllAttributes } from "../../../shared/utils/checkBodyData";
 
 interface Response {
   statusCode: number;
