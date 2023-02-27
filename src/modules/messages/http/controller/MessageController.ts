@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { messages } from '../../../../server';
 
-import { Message } from '../../entities/Message';
+import { Message } from '../../infra/typeorm/entities/Message';
 import { CreateMessageService } from '../service/CreateMessageService';
 import { DeleteMessageService } from '../service/DeleteMessageService';
 import { ShowMessageService } from '../service/ShowMessageService';

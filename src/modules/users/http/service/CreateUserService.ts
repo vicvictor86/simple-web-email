@@ -1,6 +1,7 @@
+import { User } from "@modules/users/infra/typeorm/entities/User";
+import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
 import { IncomingMessage, ServerResponse } from "http";
 import { hasAllAttributes } from "../../../../utils/checkBodyData";
-import { UserDTO } from "../../dtos/UserDTO";
 
 interface Response {
   statusCode: number;
@@ -8,20 +9,25 @@ interface Response {
 }
 
 export class CreateUserService {
-  public execute(req: IncomingMessage, res: ServerResponse, newUser: any, keysNeededInUser: string[], users: UserDTO[]): Response{
+  private usersRepository: IUsersRepository;
+  constructor(usersRepository: IUsersRepository) {
+    this.usersRepository = usersRepository;
+  }
+
+  public async execute(req: IncomingMessage, res: ServerResponse, newUser: any, keysNeededInUser: string[]): Promise<Response>{
     if (!hasAllAttributes(newUser, keysNeededInUser)) {
       return { statusCode: 400, message: 'Missing attributes' };
     }
 
-    const typedNewUser = newUser as UserDTO;
+    const typedNewUser = newUser as User;
 
-    const userAlreadyExists = users.find(user => user.name === typedNewUser.name);
+    const userAlreadyExists = await this.usersRepository.findByName(typedNewUser.name);
 
     if (userAlreadyExists) {
       return { statusCode: 400, message: 'User already exists' };
     }
 
-    users.push(typedNewUser);
+    await this.usersRepository.create(typedNewUser);
 
     return { statusCode: 201, message: JSON.stringify(typedNewUser)};
   }

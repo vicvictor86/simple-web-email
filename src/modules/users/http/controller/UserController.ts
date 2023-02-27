@@ -1,29 +1,38 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { users } from '../../../../server';
 
-import { User } from '../../entities/User';
+import { User } from '@modules/users/infra/typeorm/entities/User';
 import { CreateUserService } from '../service/CreateUserService';
+import container from '@shared/container';
+import { IUsersRepository } from '@modules/users/repositories/IUsersRepository';
+import { ShowUsersService } from '../service/ShowUsersServices';
 
 export class UserController {
-  get(req: IncomingMessage, res: ServerResponse) {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(users));
+  async get(req: IncomingMessage, res: ServerResponse) {
+    const usersRepository = container.resolve<IUsersRepository>('UsersRepository');
+
+    const userId = req.url?.split('/')[2];
+
+    const showUsersService = new ShowUsersService(usersRepository);
+    const { statusCode, message } = await showUsersService.execute(req, res, userId);
+
+    res.statusCode = statusCode;
+    res.end(message);
   }
 
-  post(req: IncomingMessage, res: ServerResponse) {
-    const createUserService = new CreateUserService();
+  async post(req: IncomingMessage, res: ServerResponse) {
+    const usersRepository = container.resolve<IUsersRepository>('UsersRepository');
+    const createUserService = new CreateUserService(usersRepository);
 
     let body = '';
     req.on('data', requestBody => {
       body += requestBody.toString();
     });
 
-    req.on('end', () => {
+    req.on('end', async () => {
       const newUser = JSON.parse(body);
       const keysNeededInUser = Object.keys(new User());
 
-      const { statusCode, message } = createUserService.execute(req, res, newUser, keysNeededInUser, users);
+      const { statusCode, message } = await createUserService.execute(req, res, newUser, keysNeededInUser);
 
       res.statusCode = statusCode;
       res.end(message);
