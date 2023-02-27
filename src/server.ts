@@ -1,10 +1,7 @@
 import 'reflect-metadata';
 import http from 'http';
-import { IMessageDTO } from './modules/messages/dtos/IMessageDTO';
 import { router } from './shared/router/router';
 import './shared/container';
-
-export const messages: IMessageDTO[] = [];
 
 const server = http.createServer((req, res) => {
   router(req, res);

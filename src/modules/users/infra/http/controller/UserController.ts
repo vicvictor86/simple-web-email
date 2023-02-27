@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http';
 
 import { User } from '@modules/users/infra/typeorm/entities/User';
-import { CreateUserService } from '../service/CreateUserService';
+import { CreateUserService } from '@modules/users/service/CreateUserService';
 import container from '@shared/container';
 import { IUsersRepository } from '@modules/users/repositories/IUsersRepository';
-import { ShowUsersService } from '../service/ShowUsersServices';
+import { ShowUsersService } from '@modules/users/service/ShowUsersServices';
 
 export class UserController {
   async get(req: IncomingMessage, res: ServerResponse) {
@@ -13,7 +13,7 @@ export class UserController {
     const userId = req.url?.split('/')[2];
 
     const showUsersService = new ShowUsersService(usersRepository);
-    const { statusCode, message } = await showUsersService.execute(req, res, userId);
+    const { statusCode, message } = await showUsersService.execute(userId);
 
     res.statusCode = statusCode;
     res.end(message);
@@ -32,7 +32,7 @@ export class UserController {
       const newUser = JSON.parse(body);
       const keysNeededInUser = Object.keys(new User());
 
-      const { statusCode, message } = await createUserService.execute(req, res, newUser, keysNeededInUser);
+      const { statusCode, message } = await createUserService.execute(newUser, keysNeededInUser);
 
       res.statusCode = statusCode;
       res.end(message);

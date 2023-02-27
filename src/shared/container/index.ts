@@ -1,6 +1,8 @@
 import createConnection from '@shared/infra/typeorm';
 import { UsersRepository } from "@modules/users/infra/typeorm/repositories/UsersRepository";
 import { IUsersRepository } from '@modules/users/repositories/IUsersRepository';
+import { IMessagesRepository } from '@modules/messages/repositories/IMessageRepositories';
+import { MessagesRepository } from '@modules/messages/infra/typeorm/repositories/MessagesRepository';
 
 class Container {
   private dependencies: Map<any, any> = new Map();
@@ -22,6 +24,7 @@ const container = new Container();
 
 createConnection().then(async () => {
   container.register<IUsersRepository>("UsersRepository", new UsersRepository());
+  container.register<IMessagesRepository>("MessagesRepository", new MessagesRepository());
 });
 
 export default container;

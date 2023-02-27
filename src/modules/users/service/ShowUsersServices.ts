@@ -12,7 +12,7 @@ export class ShowUsersService {
     this.usersRepository = usersRepository;
   }
 
-  public async execute(req: IncomingMessage, res: ServerResponse, userId:string | undefined): Promise<Response>{
+  public async execute(userId:string | undefined): Promise<Response>{
     if(userId){
       const user = await this.usersRepository.findById(userId);
       return { statusCode: 200, message: JSON.stringify(user)};

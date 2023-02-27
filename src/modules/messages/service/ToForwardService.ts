@@ -1,5 +1,5 @@
-import { messages, users } from "../../../../server";
-import { IMessageDTO } from "../../dtos/IMessageDTO";
+import { messages, users } from "../../../server";
+import { IMessageDTO } from "../dtos/ICreateMessageDTO";
 
 interface Request {
   senderId: string;

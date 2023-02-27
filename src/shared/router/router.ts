@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { router as UseRouter } from "../../modules/users/http/routes/user.routes";
-import { router as MessageRouter } from "../../modules/messages/http/routes/message.routes";
+import { router as UseRouter } from "@modules/users/infra/http/routes/user.routes";
+import { router as MessageRouter } from "@modules/messages/infra/http/routes/message.routes";
 
 export function router(req: IncomingMessage, res: ServerResponse) {
   if (req.url === undefined) {
