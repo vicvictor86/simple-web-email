@@ -67,8 +67,9 @@ export class MessageController {
 
   async delete(req: IncomingMessage, res: ServerResponse) {
     const messagesRepository = container.resolve<IMessagesRepository>('MessagesRepository');
+    const userMessagesRepository = container.resolve<IUserMessagesRepository>('UserMessagesRepository');
 
-    const deleteMessageService = new DeleteMessageService(messagesRepository);
+    const deleteMessageService = new DeleteMessageService(messagesRepository, userMessagesRepository);
 
     const messageId = req.url?.split('/')[2];
 

@@ -20,7 +20,6 @@ export class UserMessagesRepository implements IUserMessagesRepository {
     return userMessages;
   }
 
-
   public async delete(id: string): Promise<void> {
     await this.ormRepository.delete(id);
   }
@@ -31,9 +30,25 @@ export class UserMessagesRepository implements IUserMessagesRepository {
     return userMessages;
   }
 
+  public async findOneByMessageId(id: string): Promise<UserMessages | undefined> {
+    const userMessages = await this.ormRepository.findOne({
+      where: { message_id: id },
+    });
+
+    return userMessages;
+  }
+
+  public async findByMessageId(id: string): Promise<UserMessages[] | undefined> {
+    const userMessages = await this.ormRepository.find({
+      where: { message_id: id },
+    });
+
+    return userMessages;
+  }
+
   public async findByUserId(user_id: string): Promise<UserMessages[] | undefined> {
     const userMessages = await this.ormRepository.find({
-      where:[
+      where: [
         {
           sender_id: user_id,
         },
@@ -49,7 +64,7 @@ export class UserMessagesRepository implements IUserMessagesRepository {
   public async findEmail(findEmail: IFindEmail): Promise<UserMessages[] | undefined> {
     const { message_id, sender_id, addressee_id } = findEmail;
     const userMessages = await this.ormRepository.find({
-      where:[
+      where: [
         {
           message_id,
           sender_id,
