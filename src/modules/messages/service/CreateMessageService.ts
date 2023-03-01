@@ -42,6 +42,14 @@ export class CreateMessageService {
       return { statusCode: 400, message: 'Missing attributes' };
     }
 
+    if(bodyData.replyingTo) {
+      const messageReplying = await this.userMessagesRepository.findById(bodyData.replyingTo);
+
+      if (!messageReplying) {
+        return { statusCode: 400, message: 'Message replying to not found' };
+      }
+    }
+
     const newMessage = await this.messagesRepository.create(messageData);
 
     const userMessagesData: ICreateUserMessagesDTO[] = bodyData.addressees.map((addresseeId: string) => {
