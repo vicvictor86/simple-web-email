@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { router as UseRouter } from "@modules/users/infra/http/routes/user.routes";
+import { router as UserRouter } from "@modules/users/infra/http/routes/user.routes";
 import { router as MessageRouter } from "@modules/messages/infra/http/routes/message.routes";
 
 export function router(req: IncomingMessage, res: ServerResponse) {
@@ -15,7 +15,7 @@ export function router(req: IncomingMessage, res: ServerResponse) {
   const regexMessages = /^\/messages\/*\w*/;
   
   if (regexUsers.test(req.url)) {
-    UseRouter(req, res);
+    UserRouter(req, res);
     return;
   } else if (regexMessages.test(req.url)) {
     MessageRouter(req, res);
