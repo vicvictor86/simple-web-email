@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { UserMessages } from './UserMessages';
 
 @Entity('messages')
 export class Message {
@@ -10,6 +11,9 @@ export class Message {
 
   @Column()
   subject: string;
+
+  @OneToMany(() => UserMessages, (userMessages) => userMessages.message)
+  userMessages: UserMessages[];
 
   @CreateDateColumn()
   created_at: Date;

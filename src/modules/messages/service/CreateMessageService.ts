@@ -1,7 +1,8 @@
-import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
 import { hasAllAttributes } from "../../../shared/utils/checkBodyData";
 import { ICreateMessageDTO } from "../dtos/ICreateMessageDTO";
+import { ICreateUserMessagesDTO } from "../dtos/ICreateUserMessagesDTO";
 import { IMessagesRepository } from "../repositories/IMessageRepositories";
+import { IUserMessagesRepository } from "../repositories/IUserMessagesRepository";
 
 interface Request {
   bodyData: any;
@@ -15,21 +16,54 @@ interface Response {
 
 export class CreateMessageService {
   private messagesRepository: IMessagesRepository;
-  constructor(messagesRepository: IMessagesRepository) {
+  private userMessagesRepository: IUserMessagesRepository;
+  constructor(messagesRepository: IMessagesRepository, userMessagesRepository: IUserMessagesRepository) {
     this.messagesRepository = messagesRepository;
+    this.userMessagesRepository = userMessagesRepository;
   }
 
   public async execute({ bodyData, keysNeededInMessage }: Request): Promise<Response> {
-    const newMessageWithReplyingTo = bodyData.replyingTo ? bodyData as ICreateMessageDTO : { ...bodyData, replyingTo: "", forwardingTo: "" } as ICreateMessageDTO;
-    if (!hasAllAttributes(newMessageWithReplyingTo, keysNeededInMessage)) {
+    const messageData = {
+      text: bodyData.text,
+      subject: bodyData.subject,
+    } as ICreateMessageDTO;
+
+    if (!hasAllAttributes(messageData, keysNeededInMessage)) {
       return { statusCode: 400, message: 'Missing attributes' };
     }
 
-    const messageReplying = this.messagesRepository.findById(newMessageWithReplyingTo.replyingTo);
-
-    if (newMessageWithReplyingTo.replyingTo && !messageReplying) {
-      return { statusCode: 400, message: 'Message replying to not found' };
+    const verifyUserMessagesAttributes = ['sender', 'addressees'];
+    const userMessagesDataToVerify = {
+      sender: bodyData.sender,
+      addressees: bodyData.addressees,
     }
+
+    if (!hasAllAttributes(userMessagesDataToVerify, verifyUserMessagesAttributes)) {
+      return { statusCode: 400, message: 'Missing attributes' };
+    }
+
+    const newMessage = await this.messagesRepository.create(messageData);
+
+    const userMessagesData: ICreateUserMessagesDTO[] = bodyData.addressees.map((addresseeId: string) => {
+      return {
+        message_id: newMessage.id,
+        sender_id: bodyData.sender,
+        addressee_id: addresseeId,
+        replying_to_id: bodyData.replyingTo,
+        forwarding_to_id: bodyData.forwardingTo,
+        read: false,
+      } as ICreateUserMessagesDTO;
+    });
+
+    const newUserMessagesPromises = userMessagesData.map(async (userMessageData) => {
+      return this.userMessagesRepository.create(userMessageData);
+    });
+
+    const newUserMessages = await Promise.all(newUserMessagesPromises);
+
+    // if (newMessageWithReplyingTo.replyingTo && !messageReplying) {
+    //   return { statusCode: 400, message: 'Message replying to not found' };
+    // }
 
     // if (messageReplying) {
     //   const senderInConversation = newMessageWithReplyingTo.senderId === messageReplying.senderId || newMessageWithReplyingTo.senderId === messageReplying.addresseeId;
@@ -39,8 +73,6 @@ export class CreateMessageService {
     //   }
     // }
 
-    const newMessage = await this.messagesRepository.create(newMessageWithReplyingTo);
-
-    return { statusCode: 201, message: JSON.stringify(newMessage) };
+    return { statusCode: 201, message: JSON.stringify(newUserMessages) };
   }
 }

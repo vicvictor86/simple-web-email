@@ -8,16 +8,20 @@ import { ToForwardService } from '@modules/messages/service/ToForwardService';
 import { IMessagesRepository } from '@modules/messages/repositories/IMessageRepositories';
 
 import container from '@shared/container';
+import { IUserMessagesRepository } from '@modules/messages/repositories/IUserMessagesRepository';
+import { getParamsOfQueryParams } from '@shared/utils/getParamsOfQueryParams';
 
 export class MessageController {
   async get(req: IncomingMessage, res: ServerResponse) {
     const messagesRepository = container.resolve<IMessagesRepository>('MessagesRepository');
+    const userMessagesRepository = container.resolve<IUserMessagesRepository>('UserMessagesRepository');
 
-    const showMessageService = new ShowMessageService(messagesRepository);
+    const showMessageService = new ShowMessageService(messagesRepository, userMessagesRepository);
 
-    const messageId = req.url?.split('/')[2];
+    const stringQueryParams = req.url?.split('?')[1];
+    const queryParams = getParamsOfQueryParams(stringQueryParams);
 
-    const { statusCode, message } = await showMessageService.execute(messageId);
+    const { statusCode, message } = await showMessageService.execute(queryParams);
 
     res.statusCode = statusCode;
     res.end(message);
@@ -25,8 +29,9 @@ export class MessageController {
 
   post(req: IncomingMessage, res: ServerResponse) {
     const messagesRepository = container.resolve<IMessagesRepository>('MessagesRepository');
+    const userMessagesRepository = container.resolve<IUserMessagesRepository>('UserMessagesRepository');
 
-    const createMessageService = new CreateMessageService(messagesRepository);
+    const createMessageService = new CreateMessageService(messagesRepository, userMessagesRepository);
     const toForwardService = new ToForwardService();
 
     let body = '';
@@ -44,8 +49,8 @@ export class MessageController {
       let message: string;
 
       if (messageId) {
-        const { senderId, addresseeId } = bodyData;
-        const response = toForwardService.execute({ senderId, addresseeId, messageId });
+        const { senders, addressees } = bodyData;
+        const response = toForwardService.execute({ senders, addressees, messageId });
 
         statusCode = response.statusCode;
         message = response.message;
