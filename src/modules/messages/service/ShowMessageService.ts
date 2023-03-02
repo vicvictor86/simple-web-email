@@ -1,3 +1,4 @@
+import { AppError } from "@shared/error/AppError";
 import { IMessagesRepository } from "../repositories/IMessageRepositories";
 import { IUserMessagesRepository } from "../repositories/IUserMessagesRepository";
 
@@ -28,31 +29,31 @@ export class ShowMessageService {
       const userMessages = await this.userMessagesRepository.findById(user_messages_id);
 
       if (!userMessages) {
-        return { statusCode: 404, message: 'Message not found' };
+        throw new AppError('Message not found', 404);
       }
 
       return { statusCode: 200, message: JSON.stringify(userMessages) };
     }
 
-    if (!message_id) {
+    if (!message_id && !sender_id && !addressee_id) {
       const messages = await this.userMessagesRepository.all();
       return { statusCode: 200, message: JSON.stringify(messages) };
     }
 
-    if (!sender_id && !addressee_id) {
-      return { statusCode: 400, message: 'Missing params' };
+    if (!sender_id || !addressee_id || !message_id) {
+      throw new AppError('Missing parameters');
     }
 
     const message = await this.messagesRepository.findById(message_id);
 
     if (!message) {
-      return { statusCode: 404, message: 'Message not found' };
+      throw new AppError('Message not found', 404);
     }
 
     const userMessages = await this.userMessagesRepository.findEmail({ message_id, sender_id, addressee_id });
 
     if (!userMessages) {
-      return { statusCode: 404, message: 'Message not found' };
+      throw new AppError('Message not found', 404);
     }
 
     return { statusCode: 200, message: JSON.stringify(userMessages) };

@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import { router as UserRouter } from "@modules/users/infra/http/routes/user.routes";
 import { router as MessageRouter } from "@modules/messages/infra/http/routes/message.routes";
 
-export function router(req: IncomingMessage, res: ServerResponse) {
+export async function router(req: IncomingMessage, res: ServerResponse) {
   if (req.url === undefined) {
     res.statusCode = 404;
     res.end();
@@ -13,13 +13,11 @@ export function router(req: IncomingMessage, res: ServerResponse) {
   const regexUsers = /^\/users\/*\w*/;
   //Match urls that start with /messages/ and have or not something after it
   const regexMessages = /^\/messages\/*\w*/;
-  
+
   if (regexUsers.test(req.url)) {
-    UserRouter(req, res);
-    return;
+    await UserRouter(req, res);
   } else if (regexMessages.test(req.url)) {
-    MessageRouter(req, res);
-    return;
+    await MessageRouter(req, res);
   } else {
     res.statusCode = 404;
     res.end();

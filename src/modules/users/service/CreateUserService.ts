@@ -1,6 +1,6 @@
 import { User } from "@modules/users/infra/typeorm/entities/User";
 import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
-import { IncomingMessage, ServerResponse } from "http";
+import { AppError } from "@shared/error/AppError";
 import { hasAllAttributes } from "../../../shared/utils/checkBodyData";
 
 interface Response {
@@ -16,7 +16,7 @@ export class CreateUserService {
 
   public async execute(newUser: any, keysNeededInUser: string[]): Promise<Response>{
     if (!hasAllAttributes(newUser, keysNeededInUser)) {
-      return { statusCode: 400, message: 'Missing attributes' };
+      throw new AppError('Missing params', 400);
     }
 
     const typedNewUser = newUser as User;
@@ -24,7 +24,7 @@ export class CreateUserService {
     const userAlreadyExists = await this.usersRepository.findByName(typedNewUser.name);
 
     if (userAlreadyExists) {
-      return { statusCode: 400, message: 'User already exists' };
+      throw new AppError('User already exists', 400);
     }
 
     const user = await this.usersRepository.create(typedNewUser);

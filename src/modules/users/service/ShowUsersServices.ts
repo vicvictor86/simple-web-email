@@ -1,5 +1,4 @@
 import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
-import { IncomingMessage, ServerResponse } from "http";
 
 interface Response {
   statusCode: number;

@@ -7,7 +7,7 @@ import { IUsersRepository } from '@modules/users/repositories/IUsersRepository';
 import container from '@shared/container';
 
 export class ForwardController {
-  post(req: IncomingMessage, res: ServerResponse) {
+  async post(req: IncomingMessage, res: ServerResponse) {
     const userMessagesRepository = container.resolve<IUserMessagesRepository>('UserMessagesRepository');
     const userRepository = container.resolve<IUsersRepository>('UsersRepository');
 

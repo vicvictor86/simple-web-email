@@ -26,7 +26,7 @@ export class MessageController {
     res.end(message);
   }
 
-  post(req: IncomingMessage, res: ServerResponse) {
+  async post(req: IncomingMessage, res: ServerResponse) {
     const messagesRepository = container.resolve<IMessagesRepository>('MessagesRepository');
     const userMessagesRepository = container.resolve<IUserMessagesRepository>('UserMessagesRepository');
 

@@ -1,3 +1,4 @@
+import { AppError } from "@shared/error/AppError";
 import { IMessagesRepository } from "../repositories/IMessageRepositories";
 import { IUserMessagesRepository } from "../repositories/IUserMessagesRepository";
 
@@ -16,13 +17,13 @@ export class DeleteMessageService {
   
   public async execute(userMessageId: string | undefined): Promise<Response> {
     if (!userMessageId) {
-      return { statusCode: 400, message: 'Email id is required' };
+      throw new AppError('Email is required', 400);
     }
 
     const messageToDelete = await this.userMessagesRepository.findById(userMessageId);
 
     if(!messageToDelete) {
-      return { statusCode: 404, message: 'Message not found' };
+      throw new AppError('Message not found', 404);
     }
 
     await this.userMessagesRepository.delete(userMessageId);

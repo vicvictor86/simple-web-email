@@ -1,3 +1,4 @@
+import { AppError } from "@shared/error/AppError";
 import { hasAllAttributes } from "../../../shared/utils/checkBodyData";
 import { ICreateMessageDTO } from "../dtos/ICreateMessageDTO";
 import { ICreateUserMessagesDTO } from "../dtos/ICreateUserMessagesDTO";
@@ -29,7 +30,7 @@ export class CreateMessageService {
     } as ICreateMessageDTO;
 
     if (!hasAllAttributes(messageData, keysNeededInMessage)) {
-      return { statusCode: 400, message: 'Missing attributes' };
+      throw new AppError('Missing attributes', 400);
     }
 
     const verifyUserMessagesAttributes = ['sender', 'addressees'];
@@ -39,14 +40,14 @@ export class CreateMessageService {
     }
 
     if (!hasAllAttributes(userMessagesDataToVerify, verifyUserMessagesAttributes)) {
-      return { statusCode: 400, message: 'Missing attributes' };
+      throw new AppError('Missing attributes', 400);
     }
 
-    if(bodyData.replyingTo) {
+    if (bodyData.replyingTo) {
       const messageReplying = await this.userMessagesRepository.findById(bodyData.replyingTo);
 
       if (!messageReplying) {
-        return { statusCode: 400, message: 'Message replying to not found' };
+        throw new AppError('Message replying to not found', 400);
       }
     }
 

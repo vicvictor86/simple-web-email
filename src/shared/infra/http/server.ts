@@ -1,10 +1,15 @@
 import 'reflect-metadata';
 import http from 'http';
 import { router } from './router/router';
+import { errorHandler } from './middlewares/ErrorHandler';
 import '../../container';
 
-const server = http.createServer((req, res) => {
-  router(req, res);
+const server = http.createServer(async (req, res) => {
+  try {
+    await router(req, res);
+  } catch (err: any) {
+    errorHandler(err, req, res);
+  }
 });
 
 const port = 3000;

@@ -2,6 +2,7 @@ import { IUserMessagesRepository } from "../repositories/IUserMessagesRepository
 import { hasAllAttributes } from "../../../shared/utils/checkBodyData";
 import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
 import { ICreateUserMessagesDTO } from "../dtos/ICreateUserMessagesDTO";
+import { AppError } from "@shared/error/AppError";
 
 interface Request {
   userMessageId: string;
@@ -27,7 +28,7 @@ export class ToForwardService {
     const checkParams = ['userMessageId', 'senderId', 'addresseeId'];
 
     if (!hasAllAttributes(bodyData, checkParams)) {
-      return { statusCode: 400, message: 'Missing params' };
+      throw new AppError('Missing params');
     }
 
     const { userMessageId, senderId, addresseeId } = bodyData;
@@ -35,23 +36,23 @@ export class ToForwardService {
     const userMessages = await this.userMessagesRepository.findById(userMessageId);
 
     if (!userMessages) {
-      return { statusCode: 400, message: 'User message not found' };
+      throw new AppError('Message not found', 404);
     }
 
     const sender = await this.usersRepository.findById(senderId);
 
     if (!sender) {
-      return { statusCode: 400, message: 'Sender not found' };
+      throw new AppError('Sender not found', 404);
     }
 
     const addressee = await this.usersRepository.findById(addresseeId);
 
     if (!addressee) {
-      return { statusCode: 400, message: 'Addressee not found' };
+      throw new AppError('Addressee not found', 404);
     }
 
     if (sender.id !== userMessages.sender_id && sender.id !== userMessages.addressee_id) {
-      return { statusCode: 400, message: 'Sender not in conversation' };
+      throw new AppError('You are not the sender or addressee of this message', 403);
     }
 
     const newMessage = {
