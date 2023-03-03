@@ -5,6 +5,7 @@ import { CreateUserService } from '@modules/users/service/CreateUserService';
 import container from '@shared/container';
 import { IUsersRepository } from '@modules/users/repositories/IUsersRepository';
 import { ShowUsersService } from '@modules/users/service/ShowUsersServices';
+import { errorHandler } from '@shared/infra/http/middlewares/ErrorHandler';
 
 export class UserController {
   async get(req: IncomingMessage, res: ServerResponse) {
@@ -25,17 +26,25 @@ export class UserController {
 
     let body = '';
     req.on('data', requestBody => {
-      body += requestBody.toString();
+      try {
+        body += requestBody.toString();
+      } catch (err: any) {
+        errorHandler(err, req, res);
+      }
     });
 
     req.on('end', async () => {
-      const newUser = JSON.parse(body);
-      const keysNeededInUser = Object.keys(new User());
+      try {
+        const newUser = JSON.parse(body);
+        const keysNeededInUser = Object.keys(new User());
 
-      const { statusCode, message } = await createUserService.execute(newUser, keysNeededInUser);
+        const { statusCode, message } = await createUserService.execute(newUser, keysNeededInUser);
 
-      res.statusCode = statusCode;
-      res.end(message);
+        res.statusCode = statusCode;
+        res.end(message);
+      } catch (err: any) {
+        errorHandler(err, req, res);
+      }
     });
   }
 };
