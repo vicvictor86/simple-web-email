@@ -1,3 +1,4 @@
+import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
 import { AppError } from "@shared/error/AppError";
 import { hasAllAttributes } from "../../../shared/utils/checkBodyData";
 import { ICreateMessageDTO } from "../dtos/ICreateMessageDTO";
@@ -18,9 +19,11 @@ interface Response {
 export class CreateMessageService {
   private messagesRepository: IMessagesRepository;
   private userMessagesRepository: IUserMessagesRepository;
-  constructor(messagesRepository: IMessagesRepository, userMessagesRepository: IUserMessagesRepository) {
+  private usersRepository: IUsersRepository;
+  constructor(messagesRepository: IMessagesRepository, userMessagesRepository: IUserMessagesRepository, usersRepository: IUsersRepository) {
     this.messagesRepository = messagesRepository;
     this.userMessagesRepository = userMessagesRepository;
+    this.usersRepository = usersRepository;
   }
 
   public async execute({ bodyData, keysNeededInMessage }: Request): Promise<Response> {
@@ -43,6 +46,18 @@ export class CreateMessageService {
       throw new AppError('Missing attributes', 400);
     }
 
+    const addresseesIdsPromises = bodyData.addressees.map(async (addressee: string) => {
+      const addresseeId = await this.usersRepository.findByName(addressee);
+
+      if (!addresseeId) {
+        throw new AppError('Addressee not found', 400);
+      }
+
+      return addresseeId.id;
+    });
+
+    const addresseesIds = await Promise.all(addresseesIdsPromises);
+
     if (bodyData.replyingTo) {
       const messageReplying = await this.userMessagesRepository.findById(bodyData.replyingTo);
 
@@ -53,13 +68,13 @@ export class CreateMessageService {
 
     const newMessage = await this.messagesRepository.create(messageData);
 
-    const userMessagesData: ICreateUserMessagesDTO[] = bodyData.addressees.map((addresseeId: string) => {
+    const userMessagesData: ICreateUserMessagesDTO[] = addresseesIds.map((addresseeId: string) => {
       return {
         message_id: newMessage.id,
         sender_id: bodyData.sender,
         addressee_id: addresseeId,
-        replying_to_id: bodyData.replyingTo,
-        forwarding_to_id: bodyData.forwardingTo,
+        replying_to_id: bodyData.replyingTo || "",
+        forwarding_to_id: bodyData.forwardingTo || "",
         read: false,
       } as ICreateUserMessagesDTO;
     });

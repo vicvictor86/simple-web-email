@@ -10,6 +10,7 @@ import container from '@shared/container';
 import { IUserMessagesRepository } from '@modules/messages/repositories/IUserMessagesRepository';
 import { getParamsOfQueryParams } from '@shared/utils/getParamsOfQueryParams';
 import { errorHandler } from '@shared/infra/http/middlewares/ErrorHandler';
+import { IUsersRepository } from '@modules/users/repositories/IUsersRepository';
 
 export class MessageController {
   async get(req: IncomingMessage, res: ServerResponse) {
@@ -30,8 +31,9 @@ export class MessageController {
   async post(req: IncomingMessage, res: ServerResponse) {
     const messagesRepository = container.resolve<IMessagesRepository>('MessagesRepository');
     const userMessagesRepository = container.resolve<IUserMessagesRepository>('UserMessagesRepository');
+    const usersRepository = container.resolve<IUsersRepository>('UsersRepository');
 
-    const createMessageService = new CreateMessageService(messagesRepository, userMessagesRepository);
+    const createMessageService = new CreateMessageService(messagesRepository, userMessagesRepository, usersRepository);
 
     let body = '';
     req.on('data', requestBody => {
@@ -46,10 +48,10 @@ export class MessageController {
       try {
         const bodyData = JSON.parse(body);
         const keysNeededInMessage = Object.keys(new Message());
-  
+
         const response = await createMessageService.execute({ bodyData, keysNeededInMessage });
         const { statusCode, message } = response;
-  
+
         res.statusCode = statusCode;
         res.end(message);
       } catch (err: any) {

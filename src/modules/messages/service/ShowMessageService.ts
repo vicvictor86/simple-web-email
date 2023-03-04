@@ -12,6 +12,7 @@ interface Request {
   sender_id: string;
   addressee_id: string;
   user_messages_id: string;
+  user_id: string;
 }
 
 export class ShowMessageService {
@@ -23,7 +24,17 @@ export class ShowMessageService {
   }
 
   public async execute(queryParams: Request): Promise<Response> {
-    const { message_id, sender_id, addressee_id, user_messages_id } = queryParams;
+    const { message_id, sender_id, addressee_id, user_messages_id, user_id } = queryParams;
+
+    if (user_id) {
+      const userMessages = await this.userMessagesRepository.findByUserId(user_id);
+
+      if (!userMessages) {
+        throw new AppError('Messages not found', 404);
+      }
+
+      return { statusCode: 200, message: JSON.stringify(userMessages) };
+    }
 
     if (user_messages_id) {
       const userMessages = await this.userMessagesRepository.findById(user_messages_id);
