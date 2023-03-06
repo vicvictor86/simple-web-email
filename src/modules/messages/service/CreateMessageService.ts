@@ -76,6 +76,8 @@ export class CreateMessageService {
         replying_to_id: bodyData.replyingTo || "",
         forwarding_to_id: bodyData.forwardingTo || "",
         read: false,
+        addressee_delete: false,
+        sender_delete: false,
       } as ICreateUserMessagesDTO;
     });
 

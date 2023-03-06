@@ -11,6 +11,7 @@ import { IUserMessagesRepository } from '@modules/messages/repositories/IUserMes
 import { getParamsOfQueryParams } from '@shared/utils/getParamsOfQueryParams';
 import { errorHandler } from '@shared/infra/http/middlewares/ErrorHandler';
 import { IUsersRepository } from '@modules/users/repositories/IUsersRepository';
+import { UpdateMessageService } from '@modules/messages/service/UpdateMessageService';
 
 export class MessageController {
   async get(req: IncomingMessage, res: ServerResponse) {
@@ -60,15 +61,47 @@ export class MessageController {
     });
   }
 
+  async put(req: IncomingMessage, res: ServerResponse) {
+    const userMessagesRepository = container.resolve<IUserMessagesRepository>('UserMessagesRepository');
+
+    const updateMessageService = new UpdateMessageService(userMessagesRepository);
+
+    let body = '';
+    req.on('data', requestBody => {
+      try {
+        body += requestBody.toString();
+      } catch (err: any) {
+        errorHandler(err, req, res);
+      }
+    });
+
+    req.on('end', async () => {
+      try {
+        const bodyData = JSON.parse(body);
+
+        const response = await updateMessageService.execute({ bodyData });
+        const { statusCode, message } = response;
+
+        res.statusCode = statusCode;
+        res.end(message);
+      } catch (err: any) {
+        errorHandler(err, req, res);
+      }
+    });
+  }
+
   async delete(req: IncomingMessage, res: ServerResponse) {
     const messagesRepository = container.resolve<IMessagesRepository>('MessagesRepository');
     const userMessagesRepository = container.resolve<IUserMessagesRepository>('UserMessagesRepository');
 
     const deleteMessageService = new DeleteMessageService(messagesRepository, userMessagesRepository);
 
-    const messageId = req.url?.split('/')[2];
+    const userMessageId = req.url?.split('/')[2].split('?')[0];
+    const queryParams = req.url?.split('?')[1];
+    
+    const userId = getParamsOfQueryParams(queryParams).user_id;
 
-    const { statusCode, message } = await deleteMessageService.execute(messageId);
+    const { statusCode, message } = await deleteMessageService.execute({ userMessageId, userId });
 
     res.statusCode = statusCode;
     res.end(message);

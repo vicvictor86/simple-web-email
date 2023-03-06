@@ -61,7 +61,6 @@ export class ToForwardService {
       addressee_id: addresseeId,
       forwarding_to_id: userMessageId,
       replying_to_id: userMessages.replying_to_id,
-      read: false,
     } as ICreateUserMessagesDTO;
 
     const newMessageDB = await this.userMessagesRepository.create(newMessage);

@@ -43,6 +43,12 @@ export class UserMessages {
   @Column()
   read: boolean;
 
+  @Column()
+  addressee_delete: boolean;
+
+  @Column()
+  sender_delete: boolean;
+
   @CreateDateColumn()
   created_at: Date;
 

@@ -12,6 +12,8 @@ export async function router(req: IncomingMessage, res: ServerResponse) {
     await messageController.get(req, res);
   } else if (req.method === 'POST') {
     await messageController.post(req, res);
+  } else if (req.method === 'PUT') {
+    await messageController.put(req, res);
   } else if (req.method === 'DELETE') {
     await messageController.delete(req, res);
   } else {

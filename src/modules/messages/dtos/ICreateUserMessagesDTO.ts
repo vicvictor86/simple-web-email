@@ -5,4 +5,6 @@ export interface ICreateUserMessagesDTO {
   replying_to_id?: string;
   forwarding_to_id?: string;
   read: boolean;
+  sender_delete: boolean;
+  addressee_delete: boolean;
 }
