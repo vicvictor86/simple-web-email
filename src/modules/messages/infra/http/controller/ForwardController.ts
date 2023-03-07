@@ -27,8 +27,8 @@ export class ForwardController {
       try {
         const bodyData = JSON.parse(body);
   
-        const { userMessageId, senderId, addresseeId } = bodyData;
-        const response = await toForwardService.execute({ userMessageId, senderId, addresseeId });
+        const { userMessageId, senderId, addressees } = bodyData;
+        const response = await toForwardService.execute({ userMessageId, senderId, addressees });
   
         const { statusCode, message } = response;
   
