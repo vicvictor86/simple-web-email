@@ -82,22 +82,24 @@ export class CreateMessageService {
     });
 
     const newUserMessagesPromises = userMessagesData.map(async (userMessageData) => {
+      if (userMessageData.replying_to_id){
+        const messageReplying = await this.userMessagesRepository.findById(userMessageData.replying_to_id);
+
+        if (!messageReplying) {
+          throw new AppError('Message replying to not found', 400);
+        }
+
+        const senderInConversation = userMessageData.sender_id === messageReplying?.sender_id || userMessageData.sender_id === messageReplying.addressee_id;
+  
+        if (!senderInConversation) {
+          throw new AppError('Sender not in conversation', 400);
+        }
+      }
+
       return this.userMessagesRepository.create(userMessageData);
     });
 
     const newUserMessages = await Promise.all(newUserMessagesPromises);
-
-    // if (newMessageWithReplyingTo.replyingTo && !messageReplying) {
-    //   return { statusCode: 400, message: 'Message replying to not found' };
-    // }
-
-    // if (messageReplying) {
-    //   const senderInConversation = newMessageWithReplyingTo.senderId === messageReplying.senderId || newMessageWithReplyingTo.senderId === messageReplying.addresseeId;
-
-    //   if (!senderInConversation) {
-    //     return { statusCode: 400, message: 'Sender not in conversation' };
-    //   }
-    // }
 
     return { statusCode: 201, message: JSON.stringify(newUserMessages) };
   }
