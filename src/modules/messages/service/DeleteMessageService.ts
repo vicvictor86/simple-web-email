@@ -31,6 +31,9 @@ export class DeleteMessageService {
       throw new AppError('Message not found', 404);
     }
 
+    if (messageToDelete.sender_id !== userId && messageToDelete.addressee_id !== userId) {
+      throw new AppError('User not in conversation', 400);
+    }
 
     const isSender = messageToDelete.sender_id === userId;
 
